@@ -30,9 +30,9 @@ h, w, c = imgQ.shape
 # imgQ = cv2.resize(imgQ, (w // 2, h // 2))
 
 # create detector (ORB) - free to use
-orb = cv2.ORB_create(1000)
+orb = cv2.ORB_create(1050)
 kp1, des1 = orb.detectAndCompute(imgQ, None)
-# imgKp1 = cv2.drawKeypoints(imgQ,kp1,None)
+# imgKp1 = cv2.drawKeypoints(imgQ, kp1, None)
 
 path = 'UserForms'
 myPicList = os.listdir(path)
@@ -44,10 +44,9 @@ for j, y in enumerate(myPicList):
     kp2, des2 = orb.detectAndCompute(img, None)
     bf = cv2.BFMatcher(cv2.NORM_HAMMING)
     matches = bf.match(des2, des1)
-    # matches.sort(key= lambda x: x.distance)
     good = matches[:int(len(matches) * (per / 100))]
     imgMatch = cv2.drawMatches(img, kp2, imgQ, kp1, good[:100], None, flags=2)
-    # img = cv2.resize(imgMatch, (w // 2, h // 2))
+
     # cv2.imshow(y, imgMatch)
 
     srcPoints = np.float32([kp2[m.queryIdx].pt for m in good]).reshape(-1, 1, 2)
@@ -60,7 +59,7 @@ for j, y in enumerate(myPicList):
     imgShow = imgScan.copy()
     imgMask = np.zeros_like(imgShow)
 
-    myData = []
+    # myData = []
 
     print(f'################## Extracting Data from Form {j} ##################')
 
@@ -69,23 +68,8 @@ for j, y in enumerate(myPicList):
         imgShow = cv2.addWeighted(imgShow, 0.99, imgMask, 0.1, 0)
 
         imgCrop = imgScan[r[0][1]:r[1][1], r[0][0]:r[1][0]]
-        # cv2.imshow(str(x), imgCrop)
+        cv2.imshow(str(x), imgCrop)
 
-        if r[2] == 'text':
-            print(f'{r[3]}: {pytesseract.image_to_string(imgCrop)}')
-            myData.append(pytesseract.image_to_string(imgCrop))
-
-    with open('DataOutput.csv', 'a+') as f:
-        for data in myData:
-            f.write((str(data) + ','))
-
-        f.write('\n')
-
-    print(myData)
-    cv2.imshow(y + "2", imgShow)
-    # imgShow = cv2.resize(imgShow, (w // 2, h // 2))
-    # cv2.imshow(y+"2", imgShow)
-
-# cv2.imshow("KeyPointsQuery", imgKp1)
-# cv2.imshow("Output", imgQ)
-# cv2.waitKey(0)
+imgShow = cv2.resize(imgShow, (w // 2, h // 2))
+cv2.imshow(y + "2", imgShow)
+cv2.waitKey(0)
